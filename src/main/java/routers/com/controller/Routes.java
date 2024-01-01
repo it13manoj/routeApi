@@ -114,6 +114,9 @@ public class Routes {
 	    		map.put("color", sites.getMap(i).getString("color"));
 	    		map.put("startTime", sites.getMap(i).getInt("startTime"));
 	    		map.put("endTime", sites.getMap(i).getInt("endTime"));
+	    		map.put("latitude", sites.getMap(i).getInt("latitude"));
+	    		map.put("longitude", sites.getMap(i).getInt("longitude"));
+	    		map.put("isDepot", sites.getMap(i).getInt("isDepot"));
 	    		arraylist.add(map);
 	    	}
 	    	
