@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,45 +62,46 @@ public class Routes {
 	 
 	 
 	 	@PostMapping("/upload")
-		public ResponseEntity<byte[]> getRoutes(@RequestParam("file") MultipartFile file) throws IOException {
-	 		String fileName = "model.lsp"; 
-	 		String jsonContent;
-	        String filePath;
-			
-				filePath = resourceLoader.getResource("classpath:static/uploads/" + fileName).getFile().getAbsolutePath();
-			
-				LSPModeler modeler = new LSPModeler();
-	 			String lspPath = LSP_PATH;
-
-	 			
-	 		
-	         	LSPModule main = modeler.loadModule(filePath);
-	         	LocalSolver solver = modeler.createSolver();
-	         	 byte[] bytes = file.getBytes();
-	             File uploadDir = new File(UPLOAD_DIR);
-	             if (!uploadDir.exists()) {
-	                 uploadDir.mkdirs();
-	             }
-	            
-	        	 Path path = Paths.get(uploadDir.getAbsolutePath() + File.separator + file.getOriginalFilename());
-	             Files.write(path, bytes);
-	             String jsonPath = new String(Files.readAllBytes(path));
-	             main.setString("inFileName", jsonPath);
+		public String getRoutes(@RequestParam("file") MultipartFile file) throws IOException { 	
+			 ClassPathResource resource = new ClassPathResource("model.lsp");
+			 ;
+			 ClassPathResource resource1 = new ClassPathResource("input_route_v1.json");
+			 ;
+			 
+			 String jsonContent = null;
+			 File file1 = resource.getFile();
+//			 ------------------------------------------------------------------
+			 
+			 byte[] bytes = file.getBytes();
+             File uploadDir = new File(UPLOAD_DIR);
+             if (!uploadDir.exists()) {
+                 uploadDir.mkdirs();
+             }
+             
+        	 Path path = Paths.get(uploadDir.getAbsolutePath() + File.separator + file.getOriginalFilename());
+             Files.write(path, bytes);
+             System.out.println(path);
+			 
+			 
+//			 ----------------------------------------------------------------------
+			 if(file1.isFile() ==true) {
+				 LSPModeler modeler = new LSPModeler();
+				 LSPModule main = modeler.loadModule(file1.getPath());
+		         LocalSolver solver = modeler.createSolver();
+	             main.setString("inFileName", path.toString());
+	             System.out.println(main);
 		         main.run(solver);
 		         LSSolutionStatus solutionStatus = solver.getSolution().getStatus();
-		        	
-		        	if (solutionStatus == LSSolutionStatus.Infeasible || solutionStatus == LSSolutionStatus.Inconsistent) {
+		         if (solutionStatus == LSSolutionStatus.Infeasible || solutionStatus == LSSolutionStatus.Inconsistent) {
 		        		jsonContent = "";
 		        	}
 		        	
 		        	jsonContent = displaySolution(main);
-		        	byte[] bytes1 = new ObjectMapper().writeValueAsBytes(jsonContent);
+			 }else {
+				 System.out.println("No");
+			 }
 
-		        	 HttpHeaders headers = new HttpHeaders();
-		             headers.setContentType(MediaType.APPLICATION_JSON);
-		             headers.setContentDispositionFormData("attachment", "data.json"); // Set file name for download
-
-		             return ResponseEntity.ok().headers(headers).body(bytes);
+		             return jsonContent;
 			
 		}
 	 	
@@ -107,29 +110,26 @@ public class Routes {
 	    	ArrayList<Map> arraylist = new ArrayList<>();
 	    	
 	    	LSPMap sites = main.getMap("outputTasks");
+	    	LSPMap fromtoRoute = main.getMap("fromtoRoute");
 	    	for(int i =0 ; i < sites.count(); i++ ) {
 	    		Map map = new HashMap();
+	    		
 	    		map.put("name", sites.getMap(i).getString("name"));
 	    		map.put("truck", sites.getMap(i).getString("resource"));
 	    		map.put("color", sites.getMap(i).getString("color"));
 	    		map.put("startTime", sites.getMap(i).getInt("startTime"));
 	    		map.put("endTime", sites.getMap(i).getInt("endTime"));
-	    		map.put("latitude", sites.getMap(i).getInt("latitude"));
-	    		map.put("longitude", sites.getMap(i).getInt("longitude"));
-	    		map.put("isDepot", sites.getMap(i).getInt("isDepot"));
+	    		map.put("latitude", sites.getMap(i).getDouble("latitude"));
+	    		map.put("longitude", sites.getMap(i).getDouble("longitude"));
+	    		map.put("routename", fromtoRoute.getMap(i).getString("name"));
+	    		map.put("routelatitude", fromtoRoute.getMap(i).getString("latitude"));
+	    		map.put("routelongitude", fromtoRoute.getMap(i).getString("longitude"));
 	    		arraylist.add(map);
 	    	}
-	    	
-	    	ObjectMapper objectMapper = new ObjectMapper();
-	    	 
-	               try {
-					json = objectMapper.writeValueAsString(arraylist);
-					
-				} catch (JsonProcessingException e) {
-					// TODO Auto-generated catch block
-					json = "";
-				}
-	    	  return json;
+	    	Gson gson = new Gson();
+	    	 String jsonString = gson.toJson(arraylist);
+	    
+	    	  return jsonString;
 		}
 
 
