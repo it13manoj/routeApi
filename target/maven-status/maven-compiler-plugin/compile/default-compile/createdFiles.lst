@@ -1,2 +1,7 @@
+routers\com\routeImpl\RouteImp.class
+routers\com\service\RouteServices.class
+routers\com\model\Customer.class
 routers\com\controller\Routes.class
 routers\com\GenerateRouteApplication.class
+routers\com\model\Truck.class
+routers\com\model\Root.class

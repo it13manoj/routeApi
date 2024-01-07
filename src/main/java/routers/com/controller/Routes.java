@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +48,8 @@ import localsolver.LocalSolver;
 import localsolver.modeler.LSPMap;
 import localsolver.modeler.LSPModeler;
 import localsolver.modeler.LSPModule;
+import routers.com.model.Root;
+import routers.com.service.RouteServices;
 
 
 
@@ -58,6 +61,8 @@ public class Routes {
 	 
 	 private final ResourceLoader resourceLoader;
 
+	 @Autowired
+	 private RouteServices serviec;
 
 	 
 	 @Autowired
@@ -68,39 +73,36 @@ public class Routes {
 	 
 	 
 	 	@PostMapping("/upload")
-		public String getRoutes(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException { 	
-			 ClassPathResource resource = new ClassPathResource("model.lsp");
-			 ;
-			 ClassPathResource resource1 = new ClassPathResource("input_route_v1.json");
-			 ;
+		public String getRoutes(@RequestBody String data) throws IOException { 	
+			 String root = serviec.setRoot(data);
 			 String jsonContent = null;
-			// File file11 = ResourceUtils.getFile("classpath:model.lsp");
-			 //Path path = Paths.get(getClass().getClassLoader().getResource("model.lsp").toURI()); 
-			 System.out.println(resource.getFile().getAbsolutePath());
+	 		if(root == "failed") {
+	 			jsonContent ="All parameters required";
+	 		}else {
+	 			
+	 		
+	 		
+	 		ClassPathResource resource = new ClassPathResource("model.lsp");
+			 	
+			
+			System.out.println(resource.getFile().getAbsolutePath());
 			 if (resource.exists()) {
 			 
 			 File file1 = resource.getFile();
-			 
-			 File file12 = resource1.getFile();
+			 String filePath = "data.json";
 //			 ------------------------------------------------------------------
 			 
-			 byte[] bytes = file.getBytes();
-             File uploadDir = new File(UPLOAD_DIR);
-             if (!uploadDir.exists()) {
-                 uploadDir.mkdirs();
-             }
-             
-        	 Path path1 = Paths.get(uploadDir.getAbsolutePath() + File.separator + file.getOriginalFilename());
-//             Files.write(path, bytes);
-//             System.out.println(path);
-			 
-			 
+			 	FileWriter fileWriter = new FileWriter(filePath);
+	            fileWriter.write(root);
+	            fileWriter.close(); 
+	            Path absolutePath = Paths.get(filePath).toAbsolutePath();
+	            
 //			 ----------------------------------------------------------------------
 			 if(file1.isFile() ==true) {
 				 LSPModeler modeler = new LSPModeler();
 				 LSPModule main = modeler.loadModule(file1.getPath());
 		         LocalSolver solver = modeler.createSolver();
-	             main.setString("inFileName", path1.toString());
+	             main.setString("inFileName", absolutePath.toString());
 	             System.out.println(main);
 		         main.run(solver);
 		         LSSolutionStatus solutionStatus = solver.getSolution().getStatus();
@@ -112,10 +114,9 @@ public class Routes {
 			 }else {
 				 System.out.println("No");
 			 }
-			 
 			 }
-
-		             return jsonContent;
+	 		}
+			return jsonContent;
 			
 		}
 	 	
