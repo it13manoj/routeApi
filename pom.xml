@@ -45,27 +45,36 @@
     <artifactId>localsolver</artifactId>
     <version>1.0</version>
 </dependency>
+<dependency>
+			<groupId>com.example</groupId>
+			<artifactId>localsolver</artifactId>
+			<version>12.0</version>
+		</dependency>
 	</dependencies>
-	
-
 	<build>
 		<plugins>
 			<plugin>
-					  <groupId>org.springframework.boot</groupId>
-					  <artifactId>spring-boot-maven-plugin</artifactId>
-					  <configuration>
-					    <includeSystemScope>true</includeSystemScope>
-					  </configuration>
-					</plugin>
-			
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>install-external-jar</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<file>${project.basedir}/libs/localsolver.jar</file> <!-- Path to your external JAR -->
+							<groupId>com.example</groupId>
+							<artifactId>localsolver</artifactId>
+							<version>12.0</version>
+							<packaging>jar</packaging>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
-		 <resources>
-        <resource>
-            <directory>src/main/resources</directory>
-        </resource>
-        <!-- Other resource configurations if any -->
-    </resources>
 	</build>
-	
-
 </project>
+
