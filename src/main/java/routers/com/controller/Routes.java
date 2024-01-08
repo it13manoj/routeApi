@@ -3,6 +3,7 @@ package routers.com.controller;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +54,7 @@ import routers.com.service.RouteServices;
 
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/")
 public class Routes {
 	 private static final String UPLOAD_DIR = "./uploads"; 
 	 public static final String LSP_PATH = "./uploads/model.lsp";
@@ -72,7 +73,7 @@ public class Routes {
 
 	 
 	 
-	 @PostMapping("/upload")
+	 @PostMapping
 		public String getRoutes(@RequestBody String data) throws IOException { 	
 			 String root = serviec.setRoot(data);
 			 String jsonContent = null;
@@ -83,7 +84,10 @@ public class Routes {
 			 if (resource.exists()) {
 			 
 			 File file1 = resource.getFile();
-			 String filePath = "data.json";
+			
+			 
+			 ClassPathResource dataJson = new ClassPathResource("data.json");
+			 String filePath = dataJson.getPath();
 //			 ------------------------------------------------------------------
 			 
 			 	FileWriter fileWriter = new FileWriter(filePath);
@@ -140,6 +144,27 @@ public class Routes {
 	    
 	    	  return jsonString;
 		}
+		
+		@GetMapping
+		public ResponseEntity<byte[]> downloadRootFile() throws IOException {
+			
+			ClassPathResource dataJson = new ClassPathResource("data.json");
+		    String filePath = dataJson.getPath();
+		    FileReader file = new FileReader(filePath);
+		    File file1 = new File(filePath);
+
+	        char[] buffer = new char[(int) file1.length()];
+	        file.read(buffer);
+	        file.close();
+
+	        HttpHeaders headers = new HttpHeaders();
+	        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	        headers.setContentDispositionFormData("attachment", file1.getName());
+
+	        return ResponseEntity.ok()
+	                .headers(headers)
+	                .body(new String(buffer).getBytes());
+	    }
 
 
 
