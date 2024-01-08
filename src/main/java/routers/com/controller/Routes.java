@@ -85,9 +85,10 @@ public class Routes {
 			 
 			 File file1 = resource.getFile();
 			
-			 
+			 String filePath = "input.json";
 			 ClassPathResource dataJson = new ClassPathResource("data.json");
-			 String filePath = dataJson.getPath();
+			 
+			 String filePath1 = dataJson.getPath();
 //			 ------------------------------------------------------------------
 			 
 			 	FileWriter fileWriter = new FileWriter(filePath);
@@ -109,6 +110,9 @@ public class Routes {
 		        	}
 		        	
 		        	jsonContent = displaySolution(main);
+		        	FileWriter fileWriter1 = new FileWriter(filePath1);
+		            fileWriter1.write(jsonContent);
+		            fileWriter1.close(); 
 			 }else {
 				 System.out.println("No");
 			 }
@@ -144,6 +148,61 @@ public class Routes {
 	    
 	    	  return jsonString;
 		}
+		
+		
+		@PostMapping("/upload")
+		public String updateJson(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException { 	
+			 ClassPathResource resource = new ClassPathResource("model.lsp");
+			 ;
+			
+			 String jsonContent = null;
+			 if (resource.exists()) {
+			 
+			 File file1 = resource.getFile();
+			
+//			 ------------------------------------------------------------------
+			 
+			 byte[] bytes = file.getBytes();
+             File uploadDir = new File(UPLOAD_DIR);
+             if (!uploadDir.exists()) {
+                 uploadDir.mkdirs();
+             }
+             
+        	 Path path1 = Paths.get(uploadDir.getAbsolutePath() + File.separator + file.getOriginalFilename());
+        	 Files.write(path1, bytes);
+	 
+        	 ClassPathResource dataJson = new ClassPathResource("data.json");
+			 
+			 String filePath1 = dataJson.getPath();
+//			 ----------------------------------------------------------------------
+			 if(file1.isFile() ==true) {
+				 LSPModeler modeler = new LSPModeler();
+				 LSPModule main = modeler.loadModule(file1.getPath());
+		         LocalSolver solver = modeler.createSolver();
+	             main.setString("inFileName", path1.toString());
+	             System.out.println(main);
+		         main.run(solver);
+		         LSSolutionStatus solutionStatus = solver.getSolution().getStatus();
+		         if (solutionStatus == LSSolutionStatus.Infeasible || solutionStatus == LSSolutionStatus.Inconsistent) {
+		        		jsonContent = "";
+		        	}
+		        	
+		        	jsonContent = displaySolution(main);
+		        	FileWriter fileWriter1 = new FileWriter(filePath1);
+		            fileWriter1.write(jsonContent);
+		            fileWriter1.close(); 
+			 }else {
+				 System.out.println("No");
+			 }
+			 
+			 }
+
+		             return jsonContent;
+			
+		}
+	 	
+		
+		
 		
 		@GetMapping
 		public ResponseEntity<byte[]> downloadRootFile() throws IOException {
