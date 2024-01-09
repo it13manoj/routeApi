@@ -113,6 +113,7 @@ public class Routes {
 		        	FileWriter fileWriter1 = new FileWriter(filePath1);
 		            fileWriter1.write(jsonContent);
 		            fileWriter1.close(); 
+		            modeler.delete();
 			 }else {
 				 System.out.println("No");
 			 }
@@ -191,6 +192,7 @@ public class Routes {
 		        	FileWriter fileWriter1 = new FileWriter(filePath1);
 		            fileWriter1.write(jsonContent);
 		            fileWriter1.close(); 
+		            modeler.delete();
 			 }else {
 				 System.out.println("No");
 			 }
