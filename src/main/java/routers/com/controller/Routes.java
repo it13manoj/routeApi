@@ -98,9 +98,9 @@ public class Routes {
 	            
 //			 ----------------------------------------------------------------------
 			 if(file1.isFile() ==true) {
-				 LSPModeler modeler = new LSPModeler();
+				 try (LSPModeler modeler = new LSPModeler()) {
 				 LSPModule main = modeler.loadModule(file1.getPath());
-		         LocalSolver solver = modeler.createSolver();
+				 try (LocalSolver solver = modeler.createSolver()) {
 	             main.setString("inFileName", absolutePath.toString());
 	             System.out.println(main);
 		         main.run(solver);
@@ -113,7 +113,13 @@ public class Routes {
 		        	FileWriter fileWriter1 = new FileWriter(filePath1);
 		            fileWriter1.write(jsonContent);
 		            fileWriter1.close(); 
+				 }catch(Exception e) {
+			    	   System.out.println(e);
+			       }
 		            modeler.delete();
+				 }catch(Exception e) {
+					 System.out.println(e);
+				 }
 			 }else {
 				 System.out.println("No");
 			 }
