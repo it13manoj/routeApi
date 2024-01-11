@@ -40,7 +40,7 @@ function model() {
 
 function param() {
     if(lsTimeLimit == nil) {
-        lsTimeLimit = 20;
+        lsTimeLimit = 10;
     }
 }
 
