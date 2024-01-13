@@ -40,7 +40,7 @@ function model() {
 
 function param() {
     if(lsTimeLimit == nil) {
-        lsTimeLimit = 10;
+        lsTimeLimit = 20;
     }
 }
 
@@ -51,7 +51,7 @@ function output() {
     outputPoints = {};
     outputPointsIndices = {};
     nbPoints = 0;
-    println(outputDistance,"------------------", outputNbTours);
+   
     for[c in 0...nbCustomers] {
         outputPoints.add({"name": data.customers[c].name, "index": c, "color": "#3f87d2", "latitude": data.customers[c].latitude, "longitude": data.customers[c].longitude, "isDepot": false});
         outputPointsIndices[data.customers[c].id] = nbPoints;
@@ -75,33 +75,45 @@ function output() {
         outputRoutes.add(route);
         routeColor[route] = data.trucks[k].color;
     }
-    outputTasks = {};
+    
     fromtoRoute = {};
+    numberofTruect = {};
     for[k in 0...nbTrucks] {
         if(!routeUsed[k].value) {
             continue;
         }
-        for[i in 0...customerSequences[k].value.count()] {
-            outputTasks.add(toMilliseconds({"name": "Service " + data.customers[customerSequences[k].value[i]].name, "startTime": (routeEndTime[k].value[i] - customerServiceTime.value[customerSequences[k].value[i]]), "endTime": routeEndTime[k].value[i], "resource": "Truck " + k, "color": "#c7c4c4",  "latitude": data.customers[customerSequences[k].value[i]].latitude, "longitude": data.customers[customerSequences[k].value[i]].longitude, "isDepot": false}));
-        }
+        outputTasks = {};
+        
+       
         for[i in 0..customerSequences[k].value.count()] {
             local startRoute = i == 0 ? 0 : routeEndTime[k].value[i-1];
             local routeDuration = i == 0 ? duration(distanceFromDepot[0][customerSequences[k].value[i]]) : (i == customerSequences[k].value.count() ? duration(distanceToDepot[customerSequences[k].value[i-1]][0]) : duration(distanceBetweenCustomers[customerSequences[k].value[i-1]][customerSequences[k].value[i]]));
             local taskName = "Route from " + (i == 0 ? data.depotName : data.customers[customerSequences[k].value[i-1]].name) + " to " + (i == customerSequences[k].value.count() ? data.depotName : data.customers[customerSequences[k].value[i]].name);
            
-            local latitude = "Route from " + (i == 0 ? data.depotLatitude : data.customers[customerSequences[k].value[i-1]].latitude) + " to " + (i == customerSequences[k].value.count() ? data.depotLatitude : data.customers[customerSequences[k].value[i]].latitude);
+    	 	local latitude = "Route from " + (i == 0 ? data.depotLatitude : data.customers[customerSequences[k].value[i-1]].latitude) + " to " + (i == customerSequences[k].value.count() ? data.depotLatitude : data.customers[customerSequences[k].value[i]].latitude);
 
-            local longitude = "Route from " + (i == 0 ? data.depotLongitude : data.customers[customerSequences[k].value[i-1]].longitude) + " to " + (i == customerSequences[k].value.count() ? data.depotLatitude : data.customers[customerSequences[k].value[i]].longitude);
+            local longitude = "Route from " + (i == 0 ? data.depotLongitude : data.customers[customerSequences[k].value[i-1]].longitude) + " to " + (i == customerSequences[k].value.count() ? data.depotLongitude : data.customers[customerSequences[k].value[i]].longitude);
+            
+            local long = " " + (i == customerSequences[k].value.count() ? data.depotLongitude : data.customers[customerSequences[k].value[i]].longitude);
+            
+            local lang = " "+ (i == customerSequences[k].value.count() ? data.depotLatitude : data.customers[customerSequences[k].value[i]].latitude);
+            
+            local cname = (i == customerSequences[k].value.count() ? data.depotName : data.customers[customerSequences[k].value[i]].name);
+            
+            local cid =  (i == customerSequences[k].value.count() ? data.depotId : data.customers[customerSequences[k].value[i]].id);
+            
            
-           
-            fromtoRoute.add(toMilliseconds({"name": taskName, "startTime": startRoute, "endTime": (startRoute + routeDuration), "resource": "Truck " + k, "color": data.trucks[k].color,"latitude": latitude, "longitude":longitude}));
-           
-         
-         
+            outputTasks.add(toMilliseconds({"name": taskName, "startTime": startRoute, "endTime": (startRoute + routeDuration), "latitude": latitude, "longitude": longitude,"lang":lang, "long": long, "cname":cname, "cid":cid}));
+       
+      
         }
+        
+        numberofTruect.add({ "resource": "Truck " + k, "color": data.trucks[k].color, "step":outputTasks});
           
     }
-    println(outputTasks);
+    
+ 	println(numberofTruect);
+ 
     
 }
 
@@ -116,7 +128,7 @@ function computeDistanceCustomerDepot() {
     distanceToDepot = geodata.computeMatrix(data.customers, depotSource)["distances"];
     distanceFromDepot[0][n in 0...nbCustomers] = round(distanceFromDepot[0][n] / 1000);
     distanceToDepot[n in 0...nbCustomers][0] = round(distanceToDepot[n][0] / 1000);
-    println(distanceToDepot,"------------------\n", depotSource);
+
 }
 
 function duration(distance) {
@@ -141,5 +153,5 @@ function printTimespan(objective) {
 }
 
 function toMilliseconds(task) {
-    return {"name": task.name, "startTime": task.startTime * 1000, "endTime": task.endTime * 1000, "resource": task.resource, "color": task.color,"latitude":task.latitude, "longitude":task.longitude};
+    return {"name": task.name, "startTime": task.startTime * 1000, "endTime": task.endTime * 1000, "latitude": task.latitude, "longitude":task.longitude,"lang":task.lang, "long":task.long, "cname":task.cname, "cid":task.cid};
 }

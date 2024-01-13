@@ -129,32 +129,44 @@ public class Routes {
 			
 		}
 	 	
-		public String displaySolution(LSPModule main) {
-			 String json;
-	    	ArrayList<Map> arraylist = new ArrayList<>();
-	    	
-	    	LSPMap sites = main.getMap("outputTasks");
-	    	LSPMap fromtoRoute = main.getMap("fromtoRoute");
-	    	for(int i =0 ; i < sites.count(); i++ ) {
-	    		Map map = new HashMap();
-	    		
-	    		map.put("name", sites.getMap(i).getString("name"));
-	    		map.put("truck", sites.getMap(i).getString("resource"));
-	    		map.put("color", sites.getMap(i).getString("color"));
-	    		map.put("startTime", sites.getMap(i).getInt("startTime"));
-	    		map.put("endTime", sites.getMap(i).getInt("endTime"));
-	    		map.put("latitude", sites.getMap(i).getDouble("latitude"));
-	    		map.put("longitude", sites.getMap(i).getDouble("longitude"));
-	    		map.put("routename", fromtoRoute.getMap(i).getString("name"));
-	    		map.put("routelatitude", fromtoRoute.getMap(i).getString("latitude"));
-	    		map.put("routelongitude", fromtoRoute.getMap(i).getString("longitude"));
-	    		arraylist.add(map);
-	    	}
-	    	Gson gson = new Gson();
-	    	 String jsonString = gson.toJson(arraylist);
-	    
-	    	  return jsonString;
-		}
+	 public String displaySolution(LSPModule main) {
+		 String json;
+    	ArrayList<Map> arraylist = new ArrayList<>();
+    	LSPMap data = main.getMap("data");
+    	LSPMap customers = data.getMap("customers");
+    	LSPMap sites = main.getMap("outputTasks");
+    	
+    	LSPMap numberofTruect = main.getMap("numberofTruect");
+    	
+    	for(int i = 0 ; i < numberofTruect.count(); i++) {
+    		Map map = new HashMap<>();
+    		map.put("truck", numberofTruect.getMap(i).getString("resource"));
+    		map.put("color", numberofTruect.getMap(i).getString("color"));
+    		 LSPMap customer = numberofTruect.getMap(i).getMap("step");
+    		 ArrayList<Map> customerArray = new ArrayList<>();
+    		for(int j = 0 ; j < customer.count();  j++) {
+    			Map custRecords = new HashMap<>();
+    			custRecords.put("startTime", customer.getMap(j).getInt("startTime"));
+    			custRecords.put("endTime", customer.getMap(j).getInt("endTime"));
+    			custRecords.put("routelatitude", customer.getMap(j).getString("latitude"));
+    			custRecords.put("routelongitude", customer.getMap(j).getString("longitude"));
+    			custRecords.put("latitude", Double.parseDouble(customer.getMap(j).getString("lang")));
+    			custRecords.put("longitude", Double.parseDouble(customer.getMap(j).getString("long")));
+    			custRecords.put("name", customer.getMap(j).getString("cname"));
+    			custRecords.put("id", customer.getMap(j).getString("cid"));
+    			custRecords.put("routename", sites.getMap(j).getString("name"));
+	    		customerArray.add(custRecords);
+    		}
+    		map.put("step", customerArray);
+    		arraylist.add(map);
+    	}
+    	
+//    	System.out.println(numberofTruect.count());
+    	Gson gson = new Gson();
+    	 String jsonString = gson.toJson(arraylist);
+    
+    	  return jsonString;
+	}
 		
 		
 		@PostMapping("/upload")
