@@ -154,7 +154,7 @@ public class Routes {
     			custRecords.put("longitude", Double.parseDouble(customer.getMap(j).getString("long")));
     			custRecords.put("name", customer.getMap(j).getString("cname"));
     			custRecords.put("id", customer.getMap(j).getString("cid"));
-    			custRecords.put("routename", sites.getMap(j).getString("name"));
+    			custRecords.put("routename", customer.getMap(j).getString("name"));
 	    		customerArray.add(custRecords);
     		}
     		map.put("step", customerArray);
