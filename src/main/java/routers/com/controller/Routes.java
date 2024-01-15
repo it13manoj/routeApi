@@ -77,6 +77,7 @@ public class Routes {
 		public String getRoutes(@RequestBody String data) throws IOException { 	
 			 String root = serviec.setRoot(data);
 			 String jsonContent = null;
+			 Map responseMap = new HashMap<>();
 			 ClassPathResource resource = new ClassPathResource("model.lsp");
 	 		if(root == "failed") {
 	 			jsonContent ="All parameters required";
@@ -106,26 +107,42 @@ public class Routes {
 		         main.run(solver);
 		         LSSolutionStatus solutionStatus = solver.getSolution().getStatus();
 		         if (solutionStatus == LSSolutionStatus.Infeasible || solutionStatus == LSSolutionStatus.Inconsistent) {
-		        		jsonContent = "Manque de véhicule pour former les routes";
+		        	 responseMap.put("statusCode", 201);
+		        	 responseMap.put("status", false);
+		        	 responseMap.put("message", "Manque de véhicule pour former les routes");
+		        	}else {
+		        		jsonContent = displaySolution(main);
+			        	 responseMap.put("statusCode", 200);
+			        	 responseMap.put("status", true);
+			        	 responseMap.put("message", jsonContent);
 		        	}
 		        	
-		        	jsonContent = displaySolution(main);
+//		        	jsonContent = displaySolution(main);
 		        	FileWriter fileWriter1 = new FileWriter(filePath1);
 		            fileWriter1.write(jsonContent);
 		            fileWriter1.close(); 
 				 }catch(Exception e) {
-			    	   System.out.println(e);
+					 responseMap.put("statusCode", 201);
+		        	 responseMap.put("status", false);
+		        	 responseMap.put("message", "Manque de véhicule pour former les routes");
 			       }
 		            modeler.delete();
 				 }catch(Exception e) {
-					 System.out.println(e);
+					 responseMap.put("statusCode", 201);
+		        	 responseMap.put("status", false);
+		        	 responseMap.put("message", "Manque de véhicule pour former les routes");
 				 }
 			 }else {
-				 System.out.println("No");
+				 responseMap.put("statusCode", 201);
+	        	 responseMap.put("status", false);
+	        	 responseMap.put("message", "JSON format error");
 			 }
 			 }
 	 		}
-			return jsonContent;
+	 		Gson gson = new Gson();
+
+	 		String json = gson.toJson(responseMap);
+			return json;
 			
 		}
 	 	
