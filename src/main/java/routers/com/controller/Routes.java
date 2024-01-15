@@ -106,7 +106,7 @@ public class Routes {
 		         main.run(solver);
 		         LSSolutionStatus solutionStatus = solver.getSolution().getStatus();
 		         if (solutionStatus == LSSolutionStatus.Infeasible || solutionStatus == LSSolutionStatus.Inconsistent) {
-		        		jsonContent = "";
+		        		jsonContent = "Manque de véhicule pour former les routes";
 		        	}
 		        	
 		        	jsonContent = displaySolution(main);
