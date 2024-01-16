@@ -39,9 +39,7 @@ function model() {
 }
 
 function param() {
-    if(lsTimeLimit == nil) {
-        lsTimeLimit = 10;
-    }
+    lsTimeLimit = 5;
 }
 
 function output() {
