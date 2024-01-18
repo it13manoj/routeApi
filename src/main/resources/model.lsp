@@ -39,7 +39,7 @@ function model() {
 }
 
 function param() {
-    lsTimeLimit = 5;
+    lsTimeLimit = 2;
 }
 
 function output() {
