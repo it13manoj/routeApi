@@ -159,6 +159,7 @@ public class Routes {
     		Map map = new HashMap<>();
     		map.put("Truck Id", numberofTruect.getMap(i).getString("resource"));
     		map.put("color", numberofTruect.getMap(i).getString("color"));
+    		map.put("Truck_name", numberofTruect.getMap(i).getString("tname"));
     		 LSPMap customer = numberofTruect.getMap(i).getMap("step");
     		 ArrayList<Map> customerArray = new ArrayList<>();
     		for(int j = 0 ; j < customer.count();  j++) {

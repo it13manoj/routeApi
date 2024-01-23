@@ -68,6 +68,7 @@ public class RouteServices implements RouteImp{
 					}
 					map1.put("id", root.getTrucks().get(i).getId());
 					map1.put("color", root.getTrucks().get(i).getColor());
+					map1.put("name", root.getTrucks().get(i).getName());
 					truckData.add(map1);
 				}
 				rmap.put("trucks", truckData);
