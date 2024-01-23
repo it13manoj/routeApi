@@ -106,7 +106,7 @@ function output() {
       
         }
         
-        numberofTruect.add({ "resource": "Truck " + data.trucks[k].id, "color": data.trucks[k].color, "step":outputTasks});
+        numberofTruect.add({ "resource": data.trucks[k].id,  "color": data.trucks[k].color, "step":outputTasks});
           
     }
     
