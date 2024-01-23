@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -148,7 +149,7 @@ public class Routes {
 	 	
 	 public String displaySolution(LSPModule main) {
 		 String json;
-    	ArrayList<Map> arraylist = new ArrayList<>();
+		 List<Map<String, Object>> arraylist = new ArrayList<>();
     	LSPMap data = main.getMap("data");
     	LSPMap customers = data.getMap("customers");
     	LSPMap sites = main.getMap("outputTasks");
@@ -156,14 +157,14 @@ public class Routes {
     	LSPMap numberofTruect = main.getMap("numberofTruect");
     	
     	for(int i = 0 ; i < numberofTruect.count(); i++) {
-    		Map map = new HashMap<>();
+    		Map<String, Object> map = new LinkedHashMap<>(); 
     		map.put("truck_id", numberofTruect.getMap(i).getString("resource"));
+    		map.put("truck_name", numberofTruect.getMap(i).getString("name"));
     		map.put("color", numberofTruect.getMap(i).getString("color"));
-    		map.put("truck_name", numberofTruect.getMap(i).getString("tname"));
     		 LSPMap customer = numberofTruect.getMap(i).getMap("step");
-    		 ArrayList<Map> customerArray = new ArrayList<>();
+    		  ArrayList<Map<String, Object>> customerArray = new ArrayList<>();
     		for(int j = 0 ; j < customer.count();  j++) {
-    			Map custRecords = new HashMap<>();
+    			 Map<String, Object> custRecords = new HashMap<>();
     			custRecords.put("startTime", customer.getMap(j).getInt("startTime"));
     			custRecords.put("endTime", customer.getMap(j).getInt("endTime"));
     			custRecords.put("routelatitude", customer.getMap(j).getString("latitude"));
